@@ -19,6 +19,7 @@ export default function MenuItem(props: MenuItemProps){
             ">
                 {props.icone}
                 <span className="
+
                 text-xs
                 font-light
                 text-gray-600
@@ -30,7 +31,7 @@ export default function MenuItem(props: MenuItemProps){
 
     return(
        <li onClick={props.onClick}className={`
-       hover:bg-gray-100
+       hover:bg-gray-100 
        cursor-pointer
        ${props.className}
        `}>
