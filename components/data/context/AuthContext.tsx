@@ -3,12 +3,15 @@
 import Usuario from "@/model/Usuario"
 import { createContext, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import {User, signInWithPopup, GoogleAuthProvider, onIdTokenChanged} from "firebase/auth"
+import {User, signInWithPopup, GoogleAuthProvider, onIdTokenChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword} from "firebase/auth"
 import auth from "@/lib/firebase"
 import Cookies from "js-cookie"
 
 interface AuthContextProps {
     usuario?: Usuario
+    carregando?: boolean
+    cadastrar?: (email: string, senha: string) => Promise<void>
+    login?: (email: string, senha: string) => Promise<void>
     loginGoogle?: () => Promise<void>
     logout?: () => Promise<void>
 }
@@ -58,6 +61,48 @@ export function AuthProvider(props: any){
         }
     } 
 
+    async function cadastrar(email: string, senha: string){
+
+        try{
+            setCarregando(true)
+            const resp = await createUserWithEmailAndPassword(
+            auth,
+            email,
+            senha
+            )
+
+            if(resp.user == null){
+                return      
+            }
+
+            await configurarSessao(resp.user)
+            router.push("/")
+        } finally {
+            setCarregando(false)
+        }
+    }
+
+    async function login(email: string, senha: string){
+
+        try{
+            setCarregando(true)
+            const resp = await signInWithEmailAndPassword(
+            auth,
+            email,
+            senha
+            )
+
+            if(resp.user == null){
+                return      
+            }
+
+            await configurarSessao(resp.user)
+            router.push("/")
+        } finally {
+            setCarregando(false)
+        }
+    }
+
     async function loginGoogle(){
 
         try{
@@ -66,13 +111,13 @@ export function AuthProvider(props: any){
             const resp = await signInWithPopup(
             auth,
             provider
-        )
+            )
 
             if(resp.user == null){
                 return
             }
 
-            configurarSessao(resp.user)
+            await configurarSessao(resp.user)
             router.push("/")
         } finally {
             setCarregando(false)
@@ -84,6 +129,7 @@ export function AuthProvider(props: any){
             setCarregando(true)
             await auth.signOut()
             await configurarSessao(null)
+             router.push("/autenticacao")
 
         } finally {
             setCarregando(false)
@@ -95,6 +141,8 @@ export function AuthProvider(props: any){
         if(Cookies.get("admin-template-auth")){
             const cancelar = auth.onIdTokenChanged(configurarSessao)
             return () => cancelar()
+        } else {
+            setCarregando(false)
         }
     }, [])
 
@@ -102,6 +150,9 @@ export function AuthProvider(props: any){
 
         <AuthContext.Provider value={{
             usuario,
+            carregando,
+            cadastrar,
+            login,
             loginGoogle,
             logout
         }}>
