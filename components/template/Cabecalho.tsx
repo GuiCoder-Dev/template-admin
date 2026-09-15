@@ -1,3 +1,4 @@
+import AvatarUsuario from "./AvatarUsuario"
 import BotaoAlternarTema from "./BotaoAlternarTema"
 import Titulo from "./Titulo"
 
@@ -13,8 +14,9 @@ export default function Cabecalho(props: CabecalhoProps){
     return (
         <div className={`flex`}>
             <Titulo titulo={props.titulo} subtitulo={props.subtitulo}/>
-            <div className={`flex flex-grow justify-end`}>
+            <div className={`flex flex-grow justify-end items-center`}>
                 <BotaoAlternarTema tema="" /* tema={dados.tema} alternarTema={dados.alternarTema} */  />
+                <AvatarUsuario className="ml-3" />
             </div>
         </div>
     )
